@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TODOPROJECT - Home</title>
+</head>
+<body>
+    <h1>Welcome, {{ user.username }}!</h1>
+    <a href="{% url 'logout' %}">Logout</a>
+    
+    <hr>
+
+    <h3>Add New Task</h3>
+    <!-- MISTAKE FIX: You need this form to send data to your 'home' view -->
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Task Title" required>
+        <textarea name="description" placeholder="Description"></textarea>
+        <input type="date" name="due_date" required>
+        <select name="priority">
+            <option value="Low">Low</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="High">High</option>
+        </select>
+        <button type="submit">Add Task</button>
+    </form>
+
+    <hr>
+
+    <h3>My Task List</h3>
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Priority</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <!-- Visual improvement: Strike through text if completed -->
+                <td {% if task.complete %} style="text-decoration: line-through; color: gray;" {% endif %}>
+                    {{ task.title }}
+                </td>
+                <td>{{ task.priority }}</td>
+                <td>{{ task.due_date }}</td>
+                <td>
+                    {% if task.complete %}
+                        <span style="color: green;">Done</span>
+                    {% else %}
+                        <span style="color: orange;">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <!-- NEW: Button to trigger the complete_task view -->
+                    <a href="{% url 'complete' task.id %}">
+                        {% if task.complete %}Undo{% else %}Complete{% endif %}
+                    </a> 
+                    |
+                    <a href="{% url 'delete' task.id %}" onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No tasks found. Add one above!</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
